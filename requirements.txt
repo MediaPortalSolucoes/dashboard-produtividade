@@ -1,0 +1,9 @@
+streamlit==1.62.0
+pandas==3.0.5
+numpy==2.5.2
+plotly==7.0.0
+gspread==6.2.1
+google-auth==2.57.0
+python-dotenv==1.2.3
+requests==2.34.2
+matplotlib==3.11.1
