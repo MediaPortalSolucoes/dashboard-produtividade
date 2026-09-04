@@ -33,9 +33,8 @@ Arquivo de credenciais da **Conta de Serviço** do Google Cloud Platform (GCP).
 
 ---
 
-### 2. `.env` (Diretório `google_sheet/`)
+### 2. `.env` 
 Arquivo contendo dados de autenticação do OAuth2 do Basecamp e identificadores do Google Sheets.
-* **Localização obrigatória**: Estritamente dentro da pasta `google_sheet/` (`/google_sheet/.env`).
 
 ```env
 BASECAMP_CLIENT_ID="seu_client_id"
