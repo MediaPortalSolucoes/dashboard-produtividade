@@ -1,0 +1,4 @@
+.env
+google_credentials.json
+google_sheet/config.ini
+logs/

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  dashboard:
+    image: marcusfrancisco/dashboard-produtividade:latest
+    container_name: app-dashboard-produtividade
+    restart: always
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./google_credentials.json:/app/google_credentials.json:ro
+      - ./google_sheet/config.ini:/app/google_sheet/config.ini:ro
+      - ./logs:/app/logs
