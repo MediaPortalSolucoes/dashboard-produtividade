@@ -44,3 +44,65 @@ BASECAMP_REDIRECT_URI="http://localhost:8000/callback"
 
 SPREADSHEET_NAME="Nome da Planilha no Google Drive"
 SPREADSHEET_ID="1juyOfIh..."
+```
+
+-----
+
+
+## Docker
+
+O ambiente em produção utiliza **Docker Compose** para orquestrar a imagem hospedada no Docker Hub e injetar as credenciais locais.
+
+### 1. Preparar o Ambiente
+
+Crie a estrutura na máquina (ex: `/opt/dashboard/`) colocando os arquivos criados na etapa anterior e crie o arquivo `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  dashboard:
+    image: marcusfrancisco/dashboard-produtividade:latest
+    container_name: app-dashboard-produtividade
+    restart: always
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./google_credentials.json:/app/google_credentials.json:ro
+      - ./google_sheet/config.ini:/app/google_sheet/config.ini:ro
+      - ./logs:/app/logs
+```
+
+### 2. Iniciar a Aplicação
+
+Dentro da pasta onde está o `docker-compose.yml`, rode o comando para baixar a imagem e subir o serviço em background:
+
+```bash
+docker compose up -d
+```
+
+O servidor estará rodando na porta **8501** (ex: `http://localhost:8501`).
+
+### 3. Comandos Úteis
+
+Para acompanhar os **logs**:
+
+```bash
+docker compose logs -f
+```
+
+Para **parar** o serviço:
+
+```bash
+docker compose down
+```
+
+Para **atualizar** a aplicação quando houver nova versão:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+-----
