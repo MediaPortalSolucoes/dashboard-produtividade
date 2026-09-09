@@ -40,12 +40,11 @@ def processar_mes_atual(df_completo, gc, df_equipes):
     df_upload = df_mes[[c for c in COLS_FINAL_EXPORT if c in df_mes.columns]]
     if df_upload.empty: return
 
-    try:
-        spreadsheet = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
-        try: worksheet = spreadsheet.worksheet(nome_aba_atual)
-        except gspread.exceptions.WorksheetNotFound: worksheet = spreadsheet.add_worksheet(title=nome_aba_atual, rows=len(df_upload)+100, cols=20)
-        safe_gspread_update(worksheet, df_para_dados_planilha(df_upload))
-    except Exception: pass
+    spreadsheet = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
+    try: worksheet = spreadsheet.worksheet(nome_aba_atual)
+    except gspread.exceptions.WorksheetNotFound: worksheet = spreadsheet.add_worksheet(title=nome_aba_atual, rows=len(df_upload)+100, cols=20)
+    safe_gspread_update(worksheet, df_para_dados_planilha(df_upload))
+    
 
 def atualizar_aba_geral(df_global, gc, df_equipes):
     if not df_equipes.empty:
@@ -53,10 +52,8 @@ def atualizar_aba_geral(df_global, gc, df_equipes):
     
     df_upload = df_global[[c for c in COLS_FINAL_EXPORT if c in df_global.columns]]
     if not df_upload.empty:
-        try:
-            ss = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
-            safe_gspread_update(ss.worksheet(NOME_ABA_GERAL), df_para_dados_planilha(df_upload))
-        except Exception: pass
+        ss = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
+        safe_gspread_update(ss.worksheet(NOME_ABA_GERAL), df_para_dados_planilha(df_upload))
 
 def atualizar_aba_backlog(df_global, gc, df_equipes):
     mask_backlog = df_global[COL_ATIV_SEM].astype(str).str.contains("BACKLOG", case=False, na=False)
@@ -80,15 +77,15 @@ def atualizar_aba_backlog(df_global, gc, df_equipes):
 
 async def fetch_single_ghost(url, token, idx):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    try:
-        resp = await asyncio.to_thread(requests.get, url, headers=headers)
-        if resp.status_code == 404: return idx, "404", None
-        elif resp.status_code == 200:
-            data = resp.json()
-            if data.get('completed'):
-                comp_at = data.get('completed_at') or (data.get('completion') or {}).get('created_at')
-                if comp_at: return idx, "200", pd.to_datetime(comp_at).strftime('%d/%m/%Y')
-    except: pass
+
+    resp = await asyncio.to_thread(requests.get, url, headers=headers)
+    if resp.status_code == 404: return idx, "404", None
+    elif resp.status_code == 200:
+        data = resp.json()
+        if data.get('completed'):
+            comp_at = data.get('completed_at') or (data.get('completion') or {}).get('created_at')
+            if comp_at: return idx, "200", pd.to_datetime(comp_at).strftime('%d/%m/%Y')
+
     return idx, "ERROR", None
 
 async def limpar_tarefas_fantasmas_async(df_final, token):
@@ -141,20 +138,18 @@ async def consolidar_meses_para_notas(gc, token):
 
     if df_final.empty: return
 
-    try:
-        df_semanas = pd.DataFrame(spreadsheet.worksheet(NOME_ABA_GERAL).get_all_records())
-        if not df_semanas.empty:
-            df_final[COL_ID] = df_final[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
-            df_semanas[COL_ID] = df_semanas[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
-            df_final = df_final[~df_final[COL_ID].isin(df_semanas[COL_ID].unique())]
-            df_final = pd.concat([df_final, df_semanas], ignore_index=True)
-            df_final = df_final.drop_duplicates(subset=[COL_ID], keep='last')
-    except Exception: pass
+    
+    df_semanas = pd.DataFrame(spreadsheet.worksheet(NOME_ABA_GERAL).get_all_records())
+    if not df_semanas.empty:
+        df_final[COL_ID] = df_final[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+        df_semanas[COL_ID] = df_semanas[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+        df_final = df_final[~df_final[COL_ID].isin(df_semanas[COL_ID].unique())]
+        df_final = pd.concat([df_final, df_semanas], ignore_index=True)
+        df_final = df_final.drop_duplicates(subset=[COL_ID], keep='last')
+   
 
     df_final = await limpar_tarefas_fantasmas_async(df_final, token)
 
-    try:
-        try: ws_cons = spreadsheet.worksheet(NOME_ABA_CONSOLIDADA)
-        except gspread.exceptions.WorksheetNotFound: ws_cons = spreadsheet.add_worksheet(title=NOME_ABA_CONSOLIDADA, rows=len(df_final)+500, cols=20)
-        safe_gspread_update(ws_cons, df_para_dados_planilha(df_final))
-    except Exception: pass
+    try: ws_cons = spreadsheet.worksheet(NOME_ABA_CONSOLIDADA)
+    except gspread.exceptions.WorksheetNotFound: ws_cons = spreadsheet.add_worksheet(title=NOME_ABA_CONSOLIDADA, rows=len(df_final)+500, cols=20)
+    safe_gspread_update(ws_cons, df_para_dados_planilha(df_final))

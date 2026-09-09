@@ -9,7 +9,7 @@ from utils import converter_data_robusta, tornar_colunas_unicas
 
 load_dotenv()
 
-ABA_DADOS = "Total BaseCamp para Notas"
+ABA_DADOS = "Total BaseCamp Semanas"
 ABA_EQUIPES = "Equipes"
 ABA_PONTUACAO = "Notas"
 ABA_LIDERANCA = "Liderança"
@@ -192,20 +192,15 @@ def carregar_dados_completos():
     if not spreadsheet:
         return [pd.DataFrame() for _ in range(7)]
         
-    try: df_dados = pd.DataFrame(spreadsheet.worksheet(ABA_DADOS).get_all_records())
-    except Exception: df_dados = pd.DataFrame()
+    df_dados = pd.DataFrame(spreadsheet.worksheet(ABA_DADOS).get_all_records())
     
-    try: df_equipe_bruta = pd.DataFrame(spreadsheet.worksheet(ABA_EQUIPES).get_all_records())
-    except Exception: df_equipe_bruta = pd.DataFrame()
+    df_equipe_bruta = pd.DataFrame(spreadsheet.worksheet(ABA_EQUIPES).get_all_records())
     
-    try: df_lideranca = pd.DataFrame(spreadsheet.worksheet(ABA_LIDERANCA).get_all_records())
-    except Exception: df_lideranca = pd.DataFrame()
+    df_lideranca = pd.DataFrame(spreadsheet.worksheet(ABA_LIDERANCA).get_all_records())
     
-    try: df_backlog_bruto = pd.DataFrame(spreadsheet.worksheet(ABA_BACKLOG).get_all_records())
-    except Exception: df_backlog_bruto = pd.DataFrame()
+    df_backlog_bruto = pd.DataFrame(spreadsheet.worksheet(ABA_BACKLOG).get_all_records())
     
-    try: df_source_bruto = pd.DataFrame(spreadsheet.worksheet(ABA_SOURCE).get_all_records())
-    except Exception: df_source_bruto = pd.DataFrame()
+    df_source_bruto = pd.DataFrame(spreadsheet.worksheet(ABA_SOURCE).get_all_records())
 
     df_notas_tabela1, df_notas_tabela2 = extrair_notas(spreadsheet)
     
