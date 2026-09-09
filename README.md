@@ -83,9 +83,29 @@ Dentro da pasta onde está o `docker-compose.yml`, rode o comando para baixar a 
 docker compose up -d
 ```
 
-O servidor estará rodando na porta **8501** (ex: `http://localhost:8501`).
+### 3. Alterações no código
 
-### 3. Comandos Úteis
+Quando houver alguma alteração no código, é necessário criar uma nova imagem Docker e enviá-la para o Docker Hub.
+
+Dentro da pasta do projeto, execute:
+
+```bash
+docker build -t marcusfrancisco/dashboard-produtividade:latest .
+```
+
+Depois, envie a nova imagem para o Docker Hub:
+
+```bash
+docker push marcusfrancisco/dashboard-produtividade:latest
+```
+
+Após o push, no servidor aonde está o dashboard, atualize a imagem e recrie o container:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+### 4. Comandos Úteis
 
 Para acompanhar os **logs**:
 
@@ -99,7 +119,7 @@ Para **parar** o serviço:
 docker compose down
 ```
 
-Para **atualizar** a aplicação quando houver nova versão:
+Para **atualizar** quando houver nova versão:
 
 ```bash
 docker compose pull && docker compose up -d
