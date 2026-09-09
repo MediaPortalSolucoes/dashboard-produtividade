@@ -72,7 +72,7 @@ def run_sync_script():
         logger.debug("[SCHEDULER] Sincronizacao concluida com sucesso.")
 
 def scheduler_loop():
-    target_times = ["12:30", "16:30", ]
+    target_times = ["12:30", "16:30", "00:00"]
     run_today = set()
     
     logger.debug(f"[SCHEDULER] Ativo. O script rodara as {target_times[0]} e {target_times[1]}.")
