@@ -44,16 +44,37 @@ def processar_mes_atual(df_completo, gc, df_equipes):
     try: worksheet = spreadsheet.worksheet(nome_aba_atual)
     except gspread.exceptions.WorksheetNotFound: worksheet = spreadsheet.add_worksheet(title=nome_aba_atual, rows=len(df_upload)+100, cols=20)
     safe_gspread_update(worksheet, df_para_dados_planilha(df_upload))
-    
 
-def atualizar_aba_geral(df_global, gc, df_equipes):
+async def atualizar_aba_semanas_master_async(df_global, gc, df_equipes, token):
     if not df_equipes.empty:
         df_global[COL_ENCARREGADO] = df_global[COL_SUB_LISTA].apply(lambda x: encontrar_encarregado(x, df_equipes))
     
-    df_upload = df_global[[c for c in COLS_FINAL_EXPORT if c in df_global.columns]]
-    if not df_upload.empty:
-        ss = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
-        safe_gspread_update(ss.worksheet(NOME_ABA_GERAL), df_para_dados_planilha(df_upload))
+    df_novos = df_global[[c for c in COLS_FINAL_EXPORT if c in df_global.columns]].copy()
+    if df_novos.empty: return
+
+    ss = gc.open(title=os.getenv("SPREADSHEET_NAME"), folder_id=os.getenv("FOLDER_ID"))
+    ws_geral = ss.worksheet(NOME_ABA_GERAL)
+    
+    try:
+        df_historico = pd.DataFrame(ws_geral.get_all_records())
+    except Exception:
+        df_historico = pd.DataFrame()
+        
+    if not df_historico.empty:
+        if COL_ID not in df_historico.columns: df_historico[COL_ID] = ""
+        if COL_ID not in df_novos.columns: df_novos[COL_ID] = ""
+        
+        df_historico[COL_ID] = df_historico[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+        df_novos[COL_ID] = df_novos[COL_ID].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+        
+        df_historico = df_historico[~df_historico[COL_ID].isin(df_novos[COL_ID].unique())]
+        df_final = pd.concat([df_historico, df_novos], ignore_index=True)
+        df_final = df_final.drop_duplicates(subset=[COL_ID], keep='last')
+    else:
+        df_final = df_novos
+        
+    df_final = await limpar_tarefas_fantasmas_async(df_final, token)
+    safe_gspread_update(ws_geral, df_para_dados_planilha(df_final))
 
 def atualizar_aba_backlog(df_global, gc, df_equipes):
     mask_backlog = df_global[COL_ATIV_SEM].astype(str).str.contains("BACKLOG", case=False, na=False)
