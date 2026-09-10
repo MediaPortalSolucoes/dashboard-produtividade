@@ -1,3 +1,12 @@
+## [1.2.2](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/v1.2.1...v1.2.2) (2026-09-10)
+
+
+### Bug Fixes
+
+* correção na leitura do arquivo 'VERSION.json' ([5f139fe](https://github.com/MediaPortalSolucoes/dashboard-produtividade/commit/5f139fe440e353a4acfaa51a5a78fa2aff9c069c))
+
+
+
 ## [1.2.1](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/v1.2.0...v1.2.1) (2026-09-10)
 
 
