@@ -1,3 +1,13 @@
+## [1.2.1](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/v1.2.0...v1.2.1) (2026-09-10)
+
+
+### Bug Fixes
+
+* reexecuta o workflow apos limpar a tag ([1135ccf](https://github.com/MediaPortalSolucoes/dashboard-produtividade/commit/1135ccf33e275bda17ceea88bb3558e256e7dd81))
+* remove condicao que pulava etapas do docker no actions ([27bca73](https://github.com/MediaPortalSolucoes/dashboard-produtividade/commit/27bca73c1058027eb2eb4023563f8220c5a55a14))
+
+
+
 # [1.2.0](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/v1.1.0...v1.2.0) (2026-09-10)
 
 
