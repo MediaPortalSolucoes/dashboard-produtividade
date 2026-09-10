@@ -24,26 +24,28 @@ jobs:
           version-file: 'VERSION.json'
           output-file: 'CHANGELOG.md'
       
-      - name: 🐳 Login no Docker Hub
-        # Só roda se o passo acima criou uma versão nova
-        if: steps.changelog.outputs.skipped == 'false' 
+      - name: Ler versao atual do VERSION.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./VERSION.json').version")
+          echo "CURRENT_VERSION=v$VERSION" >> $GITHUB_ENV
+
+      - name: Login no Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extrair metadados para o Docker
-        if: steps.changelog.outputs.skipped == 'false'
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: marcusfrancisco/dashboard-produtividade
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.changelog.outputs.tag }}
+            type=raw,value=${{ env.CURRENT_VERSION }}
 
       - name: Build e Push da Imagem
-        if: steps.changelog.outputs.skipped == 'false'
         uses: docker/build-push-action@v5
         with:
           context: .
