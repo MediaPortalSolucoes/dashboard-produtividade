@@ -1,4 +1,13 @@
-# 1.1.0 (2026-09-10)
+# [1.2.0](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/v1.1.0...v1.2.0) (2026-09-10)
+
+
+### Features
+
+* automatiza build e push da imagem docker no github actions ([5d8f3c8](https://github.com/MediaPortalSolucoes/dashboard-produtividade/commit/5d8f3c8cda929ae9286745fb5ee88174eaaea6a7))
+
+
+
+# [1.1.0](https://github.com/MediaPortalSolucoes/dashboard-produtividade/compare/6d9c8c99c88a42baaa8d2758c52042aadbe6cb68...v1.1.0) (2026-09-10)
 
 
 ### Bug Fixes
