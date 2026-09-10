@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 from data import carregar_dados_completos
+from json import load
 import abas 
 
 TXT_TITULO = "Dashboard de Produtividade"
@@ -29,10 +30,10 @@ st.set_page_config(layout="wide", page_title=TXT_TITULO)
 
 def carregar_versao():
     try:
-        with open("VERSION", "r") as f:
-            return f.read().strip()
+        with open("VERSIO.json", "r") as f:
+            return load(f).get("version")
     except FileNotFoundError:
-        return "(Arquivo VERSION não encontrado)"
+        return "(Arquivo VERSION.json não encontrado)"
 
 def extrair_limites_de_data(df_analise, df_notas_tabela1):
     all_dates = []
