@@ -30,7 +30,7 @@ st.set_page_config(layout="wide", page_title=TXT_TITULO)
 
 def carregar_versao():
     try:
-        with open("VERSIO.json", "r") as f:
+        with open("VERSION.json", "r") as f:
             return load(f).get("version")
     except FileNotFoundError:
         return "(Arquivo VERSION.json não encontrado)"
