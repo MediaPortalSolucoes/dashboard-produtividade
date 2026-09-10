@@ -12,7 +12,7 @@ A arquitetura utiliza o **Google Sheets** como banco de dados intermediário, on
 
 ---
 
-## 🔄 Fluxo de Atualização dos Dados
+## Fluxo de Atualização dos Dados
 
 1. **Sincronização Programada**: A planilha é atualizada automaticamente **todos os dias nos seguintes horários**:
    * **12:30**
@@ -57,24 +57,6 @@ O ambiente em produção utiliza **Docker Compose** para orquestrar a imagem hos
 
 Crie a estrutura na máquina (ex: `/opt/dashboard/`) colocando os arquivos criados na etapa anterior e crie o arquivo `docker-compose.yml`:
 
-```yaml
-version: '3.8'
-
-services:
-  dashboard:
-    image: marcusfrancisco/dashboard-produtividade:latest
-    container_name: app-dashboard-produtividade
-    restart: always
-    ports:
-      - "8501:8501"
-    env_file:
-      - .env
-    volumes:
-      - ./google_credentials.json:/app/google_credentials.json:ro
-      - ./google_sheet/config.ini:/app/google_sheet/config.ini:ro
-      - ./logs:/app/logs
-```
-
 ### 2. Iniciar a Aplicação
 
 Dentro da pasta onde está o `docker-compose.yml`, rode o comando para baixar a imagem e subir o serviço em background:
@@ -83,7 +65,32 @@ Dentro da pasta onde está o `docker-compose.yml`, rode o comando para baixar a 
 docker compose up -d
 ```
 
-### 3. Alterações no código
+---
+
+# Versionamento e Build Automático
+
+Este projeto utiliza **GitHub Actions** para automatizar o ciclo de vida de desenvolvimento, englobando o versionamento semântico, a geração de changelogs e a publicação das imagens Docker.
+
+### 1. Padrão de Commits (Conventional Commits)
+Para que a esteira de automação funcione corretamente, é **obrigatório** adotar o padrão [Conventional Commits](https://www.conventionalcommits.org/). O sistema analisa o histórico de mensagens do Git para calcular de forma autônoma a próxima versão do software.
+
+Prefixos permitidos e seus impactos:
+* `feat:` Novas funcionalidades (Incrementa a versão *Minor*. Ex: de `1.1.0` para `1.2.0`).
+* `fix:` Correção de bugs (Incrementa a versão *Patch*. Ex: de `1.2.0` para `1.2.1`).
+* `chore:` Manutenção, refatoração ou configuração (Geralmente não incrementa a versão).
+
+> **Aviso Importante:** **NUNCA** deve-se alterar o arquivo `VERSION.json` diretamente ou criar *Tags* manuais no Git. Todo o processo de versionamento é centralizado e gerido exclusivamente pelo GitHub Actions.
+
+### 2. Fluxo da Automação (GitHub Actions)
+Sempre que um novo código é integrado à branch `main`, o workflow automático executa as seguintes etapas:
+1. **Versionamento Inteligente:** Lê os commits recentes, calcula a nova versão, atualiza o arquivo `VERSION.json` e gera a documentação no `CHANGELOG.md`.
+2. **Git Tag:** Cria e faz o push da nova *Tag* de release no repositório do GitHub (ex: `v1.2.1`).
+3. **Build e Push do Docker:** Realiza o processo de `docker build` nos servidores do GitHub e publica no Docker Hub.
+4. **Dupla Tagging:** A imagem enviada ao Docker Hub é etiquetada simultaneamente com `latest` e com a versão específica (ex: `v1.2.1`), garantindo histórico e possibilidade de rollback seguro).
+
+-----
+
+### Build manual se necessário
 
 Quando houver alguma alteração no código, é necessário criar uma nova imagem Docker e enviá-la para o Docker Hub.
 
@@ -104,25 +111,3 @@ Após o push, no servidor aonde está o dashboard, atualize a imagem e recrie o 
 ```bash
 docker compose pull && docker compose up -d
 ```
-
-### 4. Comandos Úteis
-
-Para acompanhar os **logs**:
-
-```bash
-docker compose logs -f
-```
-
-Para **parar** o serviço:
-
-```bash
-docker compose down
-```
-
-Para **atualizar** quando houver nova versão:
-
-```bash
-docker compose pull && docker compose up -d
-```
-
------
